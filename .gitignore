@@ -6,6 +6,8 @@ tags
 node_modules
 __pycache__
 
-/codex_stock/.cspell
-/codex_stock/.vscode
+
+.vscode/
 /codex_stock/test
+
+.gitignore

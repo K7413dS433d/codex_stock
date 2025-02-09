@@ -90,7 +90,7 @@ def process_parts(stock_entry, part, quantity, warehouse, deek_parts):
                 "item_code": part,
                 "qty": quantity,
                 "t_warehouse": warehouse,
-            },
+            }
         )
 
 def on_submit_purchase_receipt(doc, method):
