@@ -1,0 +1,11 @@
+.DS_Store
+*.pyc
+*.egg-info
+*.swp
+tags
+node_modules
+__pycache__
+
+/codex_stock/.cspell
+/codex_stock/.vscode
+/codex_stock/test
