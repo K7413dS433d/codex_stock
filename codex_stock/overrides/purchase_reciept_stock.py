@@ -52,7 +52,7 @@ def on_submit_purchase_receipt(doc, method):
             stock_entry.insert()
 
             #Remove the original item before inserting the Stock Entry**
-            stock_entry.items = [item for item in stock_entry.items if item.item_code != item_code_to_remove]
+            doc.items.remove(item)
 
             # Submit the Stock Entry to update stock
             stock_entry.submit()
