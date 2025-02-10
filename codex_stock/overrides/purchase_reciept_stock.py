@@ -1,6 +1,4 @@
-
 import frappe
-
 
 def on_submit_purchase_receipt(doc, method):
     # Define parts and their quantities per item type
@@ -30,36 +28,23 @@ def on_submit_purchase_receipt(doc, method):
         }
     }
 
+    all_items_to_save = []  # New list to store processed items
+
     # Loop through each item in the Purchase Receipt
     for item in doc.items:
         if item.item_code in item_parts:  # Check if the item is in our dictionary
             print(f"Processing item: {item.item_code}")
 
-            stock_entry = frappe.new_doc("Stock Entry")
-            stock_entry.stock_entry_type = "Repack"
-            stock_entry.to_warehouse = item.warehouse  # Use the warehouse from the Purchase Receipt
-
-            # Remove the original item (Material Issue) repack concept
-            stock_entry.append(
-                "items",
-                {
-                    "item_code": item.item_code,  # Remove the same item received
-                    "qty": item.qty,  # Remove the same quantity received
-                    "s_warehouse": item.warehouse,  # Deduct from the same warehouse
-                },
-            )
-
-            # Add each part with the appropriate quantity multiplied by the received quantity
+            # Add each part with the appropriate quantity
             for part, qty_per_unit in item_parts[item.item_code].items():
-                stock_entry.append(
-                    "items",
-                    {
-                        "item_code": part,
-                        "qty": qty_per_unit * item.qty,  # Calculate total quantity for the received item
-                        "t_warehouse": item.warehouse,
-                    },
-                )
+                all_items_to_save.append({
+                    "item_code": part,
+                    "qty": qty_per_unit * item.qty,  # Calculate total quantity
+                    "warehouse": item.warehouse,  # Assign warehouse
+                })
 
-            # Submit the Stock Entry to update stock
-            stock_entry.insert()
-            stock_entry.submit()
+    # Replace doc.items with the new list
+    doc.items = all_items_to_save
+
+    # Save changes to the database
+    doc.save()
