@@ -1,10 +1,5 @@
 import frappe
 
-def remove_item_from_stock_entry(stock_entry, item_code_to_remove):
-    """Removes a specific item from a Stock Entry before inserting it."""
-    stock_entry.items = [item for item in stock_entry.items if item.item_code != item_code_to_remove]
-
-
 def on_submit_purchase_receipt(doc, method):
     # Define parts and their quantities per item type
     item_parts = {
@@ -57,7 +52,7 @@ def on_submit_purchase_receipt(doc, method):
             stock_entry.insert()
 
             #Remove the original item before inserting the Stock Entry**
-            remove_item_from_stock_entry(stock_entry, item.item_code)
+            stock_entry.items = [item for item in stock_entry.items if item.item_code != item_code_to_remove]
 
             # Submit the Stock Entry to update stock
             stock_entry.submit()
