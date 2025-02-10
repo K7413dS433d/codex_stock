@@ -61,4 +61,4 @@ def on_submit_purchase_receipt(doc, method):
             stock_entry.submit()
 
     for item in items_to_remove:
-        doc.items.remove(item)
+        doc.remove(item)
