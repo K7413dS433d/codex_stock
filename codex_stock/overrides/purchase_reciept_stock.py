@@ -1,22 +1,12 @@
-
 import frappe
 
+def remove_item_from_stock_entry(stock_entry, item_code_to_remove):
+    # Filter out the item to be removed
+    stock_entry.items = [item for item in stock_entry.items if item.item_code != item_code_to_remove]
 
-def remove_stock_entry_for_item(doc, item_code):
-    stock_entries = frappe.get_all(
-        "Stock Entry",
-        filters={"reference_name": doc.name},  # Find Stock Entries linked to this Purchase Receipt
-        pluck="name",
-    )
-
-    for stock_entry in stock_entries:
-        stock_entry_doc = frappe.get_doc("Stock Entry", stock_entry)
-        for entry_item in stock_entry_doc.items:
-            if entry_item.item_code == item_code:
-                stock_entry_doc.cancel()  # Cancel the stock entry containing "ديك حي"
-                frappe.delete_doc("Stock Entry", stock_entry, force=1)  # Delete it
-                frappe.db.commit()  # Save changes
-                print(f"Removed stock entry for: {item_code}")
+    # Save the document without submitting (so no stock transactions occur)
+    stock_entry.save()
+    frappe.db.commit()
 
 
 def on_submit_purchase_receipt(doc, method):
@@ -67,7 +57,11 @@ def on_submit_purchase_receipt(doc, method):
                     },
                 )
 
-            # Submit the Stock Entry to update stock
+            # Insert Stock Entry before removing item
             stock_entry.insert()
+
+            # Remove original item after adding new parts
+            remove_item_from_stock_entry(stock_entry, item.item_code)
+
+            # Submit the Stock Entry to update stock
             stock_entry.submit()
-            remove_stock_entry_for_item(doc,item.item_code)
