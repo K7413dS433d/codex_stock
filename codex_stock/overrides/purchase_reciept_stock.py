@@ -1,6 +1,16 @@
 
 import frappe
 
+
+def before_submit_purchase_receipt(doc, method):
+    # List of items that should NOT be added to stock directly
+    items_to_exclude = ["ديك حي", "هيكل", "وراك", "صدور"]
+
+    for item in doc.items:
+        if item.item_code in items_to_exclude:
+            item.stock_qty = 0  # Prevent ERPNext from adding stock
+
+
 def on_submit_purchase_receipt(doc, method):
     # Define parts and their quantities per item type
     item_parts = {
@@ -35,18 +45,8 @@ def on_submit_purchase_receipt(doc, method):
             print(f"Processing item: {item.item_code}")
 
             stock_entry = frappe.new_doc("Stock Entry")
-            stock_entry.stock_entry_type = "Repack"
+            stock_entry.stock_entry_type = "Material Receipt"
             stock_entry.to_warehouse = item.warehouse  # Use the warehouse from the Purchase Receipt
-
-            # Remove the original item (Material Issue) repack concept
-            stock_entry.append(
-                "items",
-                {
-                    "item_code": item.item_code,  # Remove the same item received
-                    "qty": item.qty,  # Remove the same quantity received
-                    "s_warehouse": item.warehouse,  # Deduct from the same warehouse
-                },
-            )
 
             # Add each part with the appropriate quantity multiplied by the received quantity
             for part, qty_per_unit in item_parts[item.item_code].items():
