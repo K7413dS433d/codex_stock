@@ -1,12 +1,8 @@
 import frappe
 
 def remove_item_from_stock_entry(stock_entry, item_code_to_remove):
-    # Filter out the item to be removed
+    """Removes a specific item from a Stock Entry before inserting it."""
     stock_entry.items = [item for item in stock_entry.items if item.item_code != item_code_to_remove]
-
-    # Save the document without submitting (so no stock transactions occur)
-    stock_entry.save()
-    frappe.db.commit()
 
 
 def on_submit_purchase_receipt(doc, method):
@@ -60,7 +56,7 @@ def on_submit_purchase_receipt(doc, method):
             # Insert Stock Entry before removing item
             stock_entry.insert()
 
-            # Remove original item after adding new parts
+            #Remove the original item before inserting the Stock Entry**
             remove_item_from_stock_entry(stock_entry, item.item_code)
 
             # Submit the Stock Entry to update stock
