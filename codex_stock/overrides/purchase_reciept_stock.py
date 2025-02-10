@@ -2,13 +2,21 @@
 import frappe
 
 
-def before_submit_purchase_receipt(doc, method):
-    # List of items that should NOT be added to stock directly
-    items_to_exclude = ["ديك حي", "هيكل", "وراك", "صدور"]
+def remove_stock_entry_for_item(doc, item_code):
+    stock_entries = frappe.get_all(
+        "Stock Entry",
+        filters={"reference_name": doc.name},  # Find Stock Entries linked to this Purchase Receipt
+        pluck="name",
+    )
 
-    for item in doc.items:
-        if item.item_code in items_to_exclude:
-            item.stock_qty = 0  # Prevent ERPNext from adding stock
+    for stock_entry in stock_entries:
+        stock_entry_doc = frappe.get_doc("Stock Entry", stock_entry)
+        for entry_item in stock_entry_doc.items:
+            if entry_item.item_code == item_code:
+                stock_entry_doc.cancel()  # Cancel the stock entry containing "ديك حي"
+                frappe.delete_doc("Stock Entry", stock_entry, force=1)  # Delete it
+                frappe.db.commit()  # Save changes
+                print(f"Removed stock entry for: {item_code}")
 
 
 def on_submit_purchase_receipt(doc, method):
@@ -62,3 +70,4 @@ def on_submit_purchase_receipt(doc, method):
             # Submit the Stock Entry to update stock
             stock_entry.insert()
             stock_entry.submit()
+            remove_stock_entry_for_item(doc,item.item_code)

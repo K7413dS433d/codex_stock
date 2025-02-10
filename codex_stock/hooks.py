@@ -148,7 +148,6 @@ app_license = "mit"
 
 doc_events = {
     "Purchase Receipt": {
-        "before_submit": "codex_stock.overrides.purchase_reciept_stock.before_submit_purchase_receipt",
         "on_submit": "codex_stock.overrides.purchase_reciept_stock.on_submit_purchase_receipt"
     }
 }
