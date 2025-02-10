@@ -38,7 +38,7 @@ def on_submit_purchase_receipt(doc, method):
             stock_entry.stock_entry_type = "Repack"
             stock_entry.to_warehouse = item.warehouse  # Use the warehouse from the Purchase Receipt
 
-            Remove the original item (Material Issue) repack concept
+            # Remove the original item (Material Issue) repack concept
             stock_entry.append(
                 "items",
                 {
