@@ -53,12 +53,16 @@ def on_submit_purchase_receipt(doc, method):
 
             # Insert Stock Entry before removing item
             stock_entry.insert()
+            # Submit the Stock Entry to update stock
+            stock_entry.submit()
 
             #collect item to remove it
             items_to_remove.append(item)
 
-            # Submit the Stock Entry to update stock
-            stock_entry.submit()
 
+    # Remove items from doc.items
     for item in items_to_remove:
         doc.remove(item)
+
+    # Save the Purchase Receipt to apply the changes
+    doc.save()
