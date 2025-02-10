@@ -28,6 +28,9 @@ def on_submit_purchase_receipt(doc, method):
         }
     }
 
+    #collection of items to removed
+    items_to_remove = []
+
     # Loop through each item in the Purchase Receipt
     for item in doc.items:
         if item.item_code in item_parts:  # Check if the item is in our dictionary
@@ -51,8 +54,11 @@ def on_submit_purchase_receipt(doc, method):
             # Insert Stock Entry before removing item
             stock_entry.insert()
 
-            #Remove the original item before inserting the Stock Entry**
-            doc.items.remove(item)
+            #collect item to remove it
+            items_to_remove.append(item)
 
             # Submit the Stock Entry to update stock
             stock_entry.submit()
+
+    for item in items_to_remove:
+        doc.items.remove(item)
